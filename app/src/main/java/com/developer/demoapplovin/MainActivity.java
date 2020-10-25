@@ -2,16 +2,23 @@ package com.developer.demoapplovin;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.view.View;
 
 import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdListener;
 import com.applovin.mediation.ads.MaxInterstitialAd;
 import com.applovin.sdk.AppLovinSdk;
 import com.applovin.sdk.AppLovinSdkConfiguration;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements MaxAdListener {
@@ -29,9 +36,16 @@ public class MainActivity extends AppCompatActivity implements MaxAdListener {
     }
 
     void createInterstitialAd() {
-        interstitialAd = new MaxInterstitialAd("YOUR_AD_UNIT_ID", this);
+        interstitialAd = new MaxInterstitialAd("9e3f20d764748fcd", this);
         interstitialAd.setListener(this);
-
+        /*Thread thread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String adId = getAdId(MainActivity.this);
+                Log.e("TinhNv", "createInterstitialAd: "+adId );
+            }
+        });
+        thread.start();*/
         // Load the first ad
         interstitialAd.loadAd();
     }
@@ -72,5 +86,27 @@ public class MainActivity extends AppCompatActivity implements MaxAdListener {
     @Override
     public void onAdDisplayFailed(MaxAd ad, int errorCode) {
         interstitialAd.loadAd();
+    }
+
+    public void showAds(View view) {
+        interstitialAd.showAd();
+    }
+
+    public static synchronized String getAdId (Context context) {
+
+        AdvertisingIdClient.Info idInfo = null;
+        try {
+            idInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+        } catch (GooglePlayServicesNotAvailableException | GooglePlayServicesRepairableException | IOException e) {
+            e.printStackTrace();
+        }
+        String advertId = null;
+        try{
+            advertId = idInfo.getId();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return advertId;
     }
 }
